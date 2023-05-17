@@ -66,7 +66,7 @@ def get_date(index):
         r = requests.get(url, headers=HEADERS, timeout=10)
         cd = r.headers['content-disposition']
         date = re.search(r"(?<=DT-)\d{8}", cd).group(0)
-        logging.info(f'Added {index} {date} date to database.')
+        logging.info(f'Added {index} date to database. ({date})')
         return date
     except requests.exceptions.ConnectTimeout:
         logging.error(f'Request timed out. Failed to scrape {index} date.')
@@ -86,11 +86,14 @@ def update_current_date():
         database = {}
         with open(DATABASE_PATH, 'r') as db:
             database = json.loads(db.read())
-        previous_latest = database[list(database.keys())[-1]]
-    if current_date.weekday() == 5 or current_date.weekday() == 6:
-        latest_index = {current_date.strftime('%Y%m%d'):previous_latest}
-    else:
-        latest_index = {current_date.strftime('%Y%m%d'):previous_latest + 1}
+        previous_latest = list(database.keys())[-1]
+        new_index = database[previous_latest]
+        latest_date = dt.datetime.strptime(previous_latest, "%Y%m%d").date()
+    while latest_date + dt.timedelta(1) <= current_date:
+        if latest_date.weekday() != 5 and latest_date.weekday() != 6:
+            new_index+=1
+        latest_date += dt.timedelta(1)
+    latest_index = {current_date.strftime('%Y%m%d'):new_index}
     with open('./db/latest_index.json', 'w+') as f:
         json.dump(latest_index, f)
     logging.info("Updating current latest index based on date...")
