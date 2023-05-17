@@ -50,4 +50,6 @@ options:
                         Start date (YYYYMMDD) for historical files
   -ed END_DATE, --end_date END_DATE
                         End date (YYYYMMDD) for historical files
+  -cfg FILE, --config_file FILE
+                        Config file for setting path download
 ```

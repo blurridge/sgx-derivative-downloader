@@ -1,6 +1,7 @@
 import logging
 import datetime as dt
 import argparse
+import configparser
 from pathlib import Path
 from setup import *
 from database_util import *
@@ -42,8 +43,18 @@ def main():
                         action="store_true")
     parser.add_argument("-sd", "--start_date", default=dt.datetime.today().date(), type=valid_date, help="Start date (YYYYMMDD) for historical files")
     parser.add_argument("-ed", "--end_date", default=dt.datetime.today().date(), type=valid_date, help="End date (YYYYMMDD) for historical files")
+    parser.add_argument("-cfg", "--config_file", metavar="FILE", help="Config file for setting path download")
     args = parser.parse_args()
     latest_index = update_current_date()
+    if args.config_file:
+        config = configparser.ConfigParser()
+        config.read(args.config_file)
+        job = {}
+        job.update(dict(config.items("job")))
+        job['create_db'] = False if (job['create_db'] == 'False' or job['create_db'] == 'false') else True
+        job['update_db'] = False if (job['update_db'] == 'False' or job['update_db'] == 'false') else True
+        parser.set_defaults(**job)
+        args = parser.parse_args()
     if args.create_db:
         create_database(latest_index)
     if args.update_db:

@@ -40,7 +40,7 @@ def download_files(start_date, end_date, destination):
     current_date = start_date
     while current_date <= end_date:
         if current_date.weekday() == 5 or current_date.weekday() == 6 or current_date.strftime("%Y%m%d") not in index_data.keys():
-            logging.info(f'No file exists for {current_date.strftime("%Y%m%d")}')
+            logging.error(f'No file exists for {current_date.strftime("%Y%m%d")}')
             current_date += dt.timedelta(1)
             continue
         current_path = f'{destination}/{current_date}'
